@@ -31,3 +31,9 @@ chart = alt.Chart(frequency_df).mark_bar().encode(
 )
 
 st.altair_chart(chart, use_container_width=True)
+
+# Usando um selectbox para filtrar o gráfico
+relatorios  = df["RELATÓRIO"].value_counts().index
+relatorio = st.selectbox("RELATÓRIO", relatorios)
+df_filtered = df[df["RELATÓRIO"] == relatorio]
+st.bar_chart(df_filtered['UF'].value_counts())
