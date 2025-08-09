@@ -8,15 +8,7 @@ df = pd.read_csv(
   names=['#', 'RELATÓRIO', 'NOME', 'MUNICÍPIO', 'UF', 'TURMA', 'CONTRATO', 'OFÍCIO', 'DATA'],
 )
 
-st.dataframe(
-  df,
-  hide_index=True
-)
-
-# Gráfico com o Streamlit
-st.bar_chart(df['UF'].value_counts())
-
-# Gráfico com o Altair
+# Gráfico 1: barras horizontais com Altair
 frequency_series = df['UF'].value_counts()
 
 frequency_df = frequency_series.reset_index()
@@ -30,10 +22,22 @@ chart = alt.Chart(frequency_df).mark_bar().encode(
     title='Número de solicitações de pagamento por UF'
 )
 
-st.altair_chart(chart, use_container_width=True)
-
-# Usando um selectbox para filtrar o gráfico
+# Gráfico 2: barras verticais com Streamlit e filtro
 relatorios  = df["RELATÓRIO"].value_counts().index
-relatorio = st.selectbox("RELATÓRIO", relatorios)
+relatorio = st.sidebar.selectbox("RELATÓRIO", relatorios)
 df_filtered = df[df["RELATÓRIO"] == relatorio]
-st.bar_chart(df_filtered['UF'].value_counts())
+
+# Layout com colunas
+col1, col2 = st.columns(2, gap="large")
+
+with col1:
+  st.header("Raw data")
+  st.dataframe(
+    df,
+    hide_index=True
+  )
+
+with col2:
+  st.header("Graphics")
+  st.altair_chart(chart, use_container_width=True) # Gráfico 1
+  st.bar_chart(df_filtered['UF'].value_counts())   # Gráfico 2
