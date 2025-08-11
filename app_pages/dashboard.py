@@ -2,19 +2,40 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
+# Data
 df = st.session_state['df_leei']
 
-frequency_series = df['UF'].value_counts()
+# Solicitações por UF
+frequency_series_uf = df['UF'].value_counts()
 
-frequency_df = frequency_series.reset_index()
-frequency_df.columns = ['Category', 'Count']
+frequency_uf = frequency_series_uf.reset_index()
+frequency_uf.columns = ['Category', 'Count']
 
-chart = alt.Chart(frequency_df).mark_bar().encode(
+chart_1 = alt.Chart(frequency_uf).mark_bar().encode(
     y=alt.Y('Category:N', title=''),  # 'N' para dados nominais/qualitativos
-    x=alt.X('Count:Q', title='Nº de solicitações'),    # 'Q' para dados quantitativos
-    # tooltip=['Category', 'Count']
+    x=alt.X('Count:Q', title=''),     # 'Q' para dados quantitativos
+    tooltip=['Category', 'Count']
 ).properties(
     title='Número de solicitações de pagamento por UF'
 )
 
-st.altair_chart(chart, use_container_width=True)
+# Solicitações por Relatório
+frequency_series_rel = df['RELATÓRIO'].value_counts()
+
+frequency_rel = frequency_series_rel.reset_index()
+frequency_rel.columns = ['Category', 'Count']
+
+custom_order = ["RELATÓRIO 1", "RELATÓRIO 2", "RELATÓRIO 3", "RELATÓRIO 4", "RELATÓRIO 5",
+                "RELATÓRIO 6", "RELATÓRIO 7", "RELATÓRIO 8", "RELATÓRIO 9", "RELATÓRIO 10"]
+
+chart_2 = alt.Chart(frequency_rel).mark_bar().encode(
+    y=alt.Y('Category:N', sort=custom_order, title=''),  # 'N' para dados nominais/qualitativos
+    x=alt.X('Count:Q', title=''),     # 'Q' para dados quantitativos
+    tooltip=['Category', 'Count']
+).properties(
+    title='Número de solicitações de pagamento por relatório'
+)
+
+# Plot
+st.altair_chart(chart_1, use_container_width=True)
+st.altair_chart(chart_2, use_container_width=True)
