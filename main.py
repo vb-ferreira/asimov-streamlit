@@ -17,8 +17,9 @@ def load_data():
   )
   return df
 
-df = load_data()
-st.session_state['df_leei'] = df
+if "df_leei" not in st.session_state:
+  df = load_data()
+  st.session_state['df_leei'] = df
 
 # Navigation
 pages = [

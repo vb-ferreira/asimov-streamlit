@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from st_aggrid import AgGrid, GridOptionsBuilder
+import webbrowser
 
 st.title('Solicitações de pagamento')
 
@@ -51,3 +52,8 @@ with tabBasico:
 
 with tabAgrupado:
   st.write('Em desenvolvimento')
+
+# Link externo
+btn = st.button('Open in Google Sheets')
+if btn:
+  webbrowser.open_new_tab('https://docs.google.com/spreadsheets/d/1feQz1NCOBN3GEszFV4Ziqp7wOysMWe-bAjcLpUx2JXw/edit?gid=887807750#gid=887807750')
