@@ -11,7 +11,7 @@ wide_space_default()
 @st.cache_data
 def load_data():
   df = pd.read_csv(
-    "leei.csv",
+    "datasets/leei.csv",
     header=None,
     names=['#', 'RELATÓRIO', 'NOME', 'MUNICÍPIO', 'UF', 'TURMA', 'CONTRATO', 'OFÍCIO', 'DATA'],
   )
