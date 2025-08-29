@@ -66,6 +66,12 @@ chart_3 = alt.Chart(df_counts).mark_line().encode(
 ).interactive() # Permite interação (zoom e pan) no gráfico.
 
 # Plot
-st.altair_chart(chart_1, use_container_width=True)
-st.altair_chart(chart_2, use_container_width=True)
+col1, col2 = st.columns(2, gap="large")
+
+with col1:
+    st.altair_chart(chart_1, use_container_width=True)
+
+with col2:
+    st.altair_chart(chart_2, use_container_width=True)
+
 st.altair_chart(chart_3, use_container_width=True)
