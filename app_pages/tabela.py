@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder
+from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 import webbrowser
 
 st.title('Solicitações de pagamento')
@@ -32,22 +32,25 @@ with tabBasico:
   gob.configure_side_bar()
   gob.configure_pagination()
 
-  gob.configure_column('#', header_name="#", width=75, filter=False)
   gob.configure_column('RELATÓRIO', header_name="RELATÓRIO", filter=True)
-  gob.configure_column('NOME', header_name="NOME", filter=True)
+  gob.configure_column('FORMADOR', header_name="FORMADOR", filter=True, width=500)
+  gob.configure_column('TURMA Nº', header_name="TURMA Nº", filter=True)
   gob.configure_column('MUNICÍPIO', header_name="MUNICÍPIO", filter=True)
-  gob.configure_column('UF', header_name="UF", width=100, filter=True)
-  gob.configure_column('DATA', header_name="DATA", filter=True)
+  gob.configure_column('UF', header_name="UF", filter=True, width=125)
+  gob.configure_column('TURMA', header_name="TURMA", filter=False, width=145)
+  gob.configure_column('OFÍCIO', header_name="OFÍCIO", filter=False, width=125)
+  gob.configure_column('ENVIO', header_name="ENVIO", filter=True)
 
   gridOptions = gob.build()
 
   AgGrid(
     df,
     gridOptions=gridOptions,
-    height=500,
+    height=1000,
     width='100%',
     theme='material',
-    fit_columns_on_grid_load=True
+    fit_columns_on_grid_load=True,
+    columns_auto_size_mode=ColumnsAutoSizeMode.NO_AUTOSIZE
   )
 
 with tabAgrupado:
