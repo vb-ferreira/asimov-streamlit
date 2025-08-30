@@ -8,10 +8,17 @@ from metrics import calc_solicitacoes, calc_oficios
 df = st.session_state['df_leei']
 
 df['ENVIO'] = pd.to_datetime(df['ENVIO'], dayfirst=True)
+
 try:
-    locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8') # Para Linux/macOS
 except locale.Error:
-    locale.setlocale(locale.LC_TIME, 'pt_BR')
+    try:
+        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8') # Outra variação
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_TIME, 'portuguese_brazil') # Para Windows
+        except locale.Error:
+            print("Nenhum locale para português do Brasil foi encontrado.")
 
 # Métricas
 primeiro_dia = df['ENVIO'].min().strftime('%B/%Y')
