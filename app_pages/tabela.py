@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 import webbrowser
+import unicodedata
 
 st.title('Solicitações de pagamento')
 
@@ -10,6 +11,12 @@ df = st.session_state['df_leei']
 
 # AgGrid
 tabBasico, tabAgrupado = st.tabs(['Dados Brutos', 'Dados Agregados'])
+
+# Helper function to ignore accents and case on filter (?)
+def to_lower_without_accents(value):
+  if value is None:
+    return None
+  return unicodedata.normalize('NFD', value.lower()).encode('ascii', 'ignore').decode('utf-8')
 
 with tabBasico:
   gob = GridOptionsBuilder.from_dataframe(df)
