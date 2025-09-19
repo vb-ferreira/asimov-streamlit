@@ -5,6 +5,11 @@ import pandas as pd
 def wide_space_default():
   st.set_page_config(layout='wide')
 
+st.logo(
+  'img/cnca-logo.png',
+  size="large"
+)
+
 wide_space_default()
 
 # Data
