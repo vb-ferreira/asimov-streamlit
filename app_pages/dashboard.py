@@ -62,9 +62,7 @@ custom_order = ["RELATÓRIO 1", "RELATÓRIO 2", "RELATÓRIO 3", "RELATÓRIO 4", 
                 "RELATÓRIO 6", "RELATÓRIO 7", "RELATÓRIO 8", "RELATÓRIO 9", "RELATÓRIO 10"]
 
 chart_2 = alt.Chart(frequency_rel).mark_bar().encode(
-    # y=alt.Y('Category:N', sort=custom_order, title=''),  # 'N' para dados nominais/qualitativos
-    # x=alt.X('Count:Q', title=''),                        # 'Q' para dados quantitativos
-    y=alt.Y('Count:Q', title=''),  # 'N' para dados nominais/qualitativos
+    y=alt.Y('Count:Q', title=''),
     x=alt.X('Category:N', sort=custom_order, title='', axis=alt.Axis(labelAngle=0)),                        # 'Q' para dados quantitativos
     tooltip=['Category', 'Count']
 ).properties(
@@ -87,7 +85,7 @@ df_registros_counts.columns = ['Data de Envio', 'Número de Registros']
 df_registros_counts = df_registros_counts.sort_values(by='Data de Envio')
 
 # Média móvel das solicitações
-df_registros_counts['Solicitações'] = df_registros_counts['Número de Registros'].rolling(window=7, min_periods=1).mean()
+df_registros_counts['Relatórios'] = df_registros_counts['Número de Registros'].rolling(window=7, min_periods=1).mean()
 
 # Ofícios únicos
 df_oficios_unicos = df.drop_duplicates(subset=['OFÍCIO', 'ENVIO'])
@@ -102,7 +100,7 @@ df_oficios_counts['Ofícios'] = df_oficios_counts['Número de Ofícios'].rolling
 
 # Concatena os dataframes
 df_merged = pd.merge(
-    df_registros_counts[['Data de Envio', 'Solicitações']],
+    df_registros_counts[['Data de Envio', 'Relatórios']],
     df_oficios_counts[['Data de Envio', 'Ofícios']],
     on='Data de Envio',
     how='outer' # garante que nenhuma data seja perdida, mesmo se não houver ofício
@@ -111,32 +109,46 @@ df_merged = pd.merge(
 # O pd.melt() transformar o df para o formato "longo"
 df_long = df_merged.melt(
     id_vars=['Data de Envio'],
-    value_vars=['Solicitações', 'Ofícios'],
+    value_vars=['Relatórios', 'Ofícios'],
     var_name='Métrica',
     value_name='Valor da Média Móvel'
 )
 
-# Cria o gráfico de linhas com base no DataFrame 'df_long'
-chart_3 = alt.Chart(df_long).mark_line(point=True).encode(
-    x=alt.X('Data de Envio:T', axis=alt.Axis(format="%d/%m/%Y"), title=''),
-    y=alt.Y('Valor da Média Móvel:Q', title=''),
+# Radio button: as opções são os valores únicos da coluna 'Métrica'.
+lista_de_metricas = df_long['Métrica'].unique()
 
-    # O  'color' cria uma linha para cada valor único na coluna 'Métrica'.
-    color=alt.Color(
-        'Métrica:N',
-        legend=alt.Legend(title='', orient='top-left'),
-        scale=alt.Scale(domain=['Ofícios', 'Solicitações'], range=['orange', 'blue'])
-        ),
+# Se 'metrica_selecionada' ainda não existir na memória, definimos a primeira da lista como padrão.
+if 'metrica_selecionada' not in st.session_state:
+    st.session_state.metrica_selecionada = lista_de_metricas[0]
+
+# Título dinâmico usando operador ternário
+metrica_atual = st.session_state.metrica_selecionada
+
+titulo_grafico = (
+    "Ofícios"
+    if metrica_atual == 'Ofícios'
+    else "Relatórios"
+)
+
+# Filtrar o df com base na seleção ---
+df_filtrado = df_long[df_long['Métrica'] == st.session_state.metrica_selecionada]
+
+chart_3 = alt.Chart(df_filtrado).mark_line(
+    point=True,
+    strokeWidth=3
+).encode(
+    x=alt.X('Data de Envio:T', axis=alt.Axis(format="%d/%m/%Y"), title=''),
+    y=alt.Y('Valor da Média Móvel:Q', title='', scale=alt.Scale(zero=False)),
     tooltip=[
         alt.Tooltip('Data de Envio:T', title='Data', format="%d/%m/%Y"),
-        alt.Tooltip('Métrica:N', title='Métrica'),
-        alt.Tooltip('Valor da Média Móvel:Q', title='Média', format=".2f") # Formata para 2 casas decimais
+        alt.Tooltip('Valor da Média Móvel:Q', title='Média', format=".2f")
     ]
 ).properties(
+    # O título é dinâmico, baseado na seleção
     title={
-        "text": "Número de solicitações por período",
+        "text": f"{titulo_grafico} enviados para pagamento por período",
         "fontSize": 24,
-        "subtitle": "Média móvel semanal de solicitações vs. ofícios",
+        "subtitle": "Média móvel semanal",
         "subtitleFontSize": 16,
         "subtitleColor": "gray"
     }
@@ -164,3 +176,11 @@ with col2:
     st.altair_chart(chart_2, use_container_width=True)
 
 st.altair_chart(chart_3, use_container_width=True)
+
+# Widget para seleção de métrica (Ofícios, Relatórios)
+st.radio(
+    label="",
+    options=lista_de_metricas,
+    key='metrica_selecionada',
+    horizontal=True
+)
